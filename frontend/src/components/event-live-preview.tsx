@@ -43,7 +43,6 @@ type Speaker = {
   imagePreview?: string;
 };
 type Faq = { question: string; answer: string };
- 
 type Occurrence = {
   occurrenceId: number;
   startTime: string;
@@ -51,7 +50,6 @@ type Occurrence = {
   eventTitle?: string;
   isCancelled?: boolean;
 };
- 
 type EventLivePreviewProps = {
   event: {
     title: string;
@@ -66,6 +64,7 @@ type EventLivePreviewProps = {
     recurrenceDates?: string[];
     occurrences?: Occurrence[];
     type?: string;
+    eventType?: string | number; // Allow fallback for backend property
     location?: string;
     eventLink?: string;
     category?: string;
@@ -77,13 +76,15 @@ type EventLivePreviewProps = {
     faqs?: Faq[];
     vibeVideoPreview?: string;
   };
- 
+
   /** If true, always use mobile (vertical) layout regardless of screen size */
   forceMobileLayout?: boolean;
 };
  
 const EventLivePreview: React.FC<EventLivePreviewProps> = ({ event, forceMobileLayout }) => {
   if (!event) return null;
+  // Use a local variable for event type, fallback to event.eventType if needed
+  const eventType = event.type !== undefined ? event.type : event.eventType;
   // Determine layout classes
   const mainSectionClass = forceMobileLayout
     ? 'flex flex-col gap-6 mb-6'
@@ -179,61 +180,86 @@ const EventLivePreview: React.FC<EventLivePreviewProps> = ({ event, forceMobileL
               <div>
                 <div className="text-xs font-semibold text-gray-500 uppercase">Recurrence Dates</div>
             {event.recurrenceType === "None" ? (
-  <select
-    className="border border-fuchsia-200 rounded-lg px-2 py-1 text-base shadow focus:outline-none focus:ring-2 focus:ring-fuchsia-400 mt-1 text-gray-400 bg-gray-100"
-    style={{ maxWidth: 260 }}
-    disabled
-  >
-    <option value="none">None</option>
-  </select>
-) :
-                Array.isArray(event.occurrences) && event.occurrences.length > 0 ? (
-                  (() => {
-                    const today = new Date();
-                    today.setHours(0, 0, 0, 0);
-                    const futureOccurrences = event.occurrences.filter((occ: any) => {
-                      const start = new Date(occ.startTime);
-                      return !isNaN(start.getTime()) && start >= today;
-                    });
-                    return (
-                      <select
-                        className="border border-fuchsia-200 rounded-lg px-2 py-1 text-base shadow focus:outline-none focus:ring-2 focus:ring-fuchsia-400 mt-1"
-                        defaultValue={futureOccurrences[0]?.occurrenceId}
-                        style={{ maxWidth: 260 }}
-                      >
-                        {futureOccurrences.length === 0 ? (
-                          <option value="none" disabled>No future dates</option>
-                        ) : (
-                          futureOccurrences.map((occ: any) => {
-                            const format = (d: string) => {
-                              const date = new Date(d);
-                              return isNaN(date.getTime()) ? d : date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-                            };
-                            return (
-                              <option key={occ.occurrenceId} value={occ.occurrenceId} disabled>
-                                {format(occ.startTime)} - {format(occ.endTime)}
-                              </option>
-                            );
-                          })
-                        )}
-                      </select>
-                    );
-                  })()
-                ) : (
-                  <div className="text-base font-medium text-gray-800">{event.recurrenceType}</div>
-                )}
+              <select
+                className="border border-fuchsia-200 rounded-lg px-2 py-1 text-base shadow focus:outline-none focus:ring-2 focus:ring-fuchsia-400 mt-1 text-gray-400 bg-gray-100"
+                style={{ maxWidth: 260 }}
+                disabled
+              >
+                <option value="none">None</option>
+              </select>
+            ) : Array.isArray(event.occurrences) && event.occurrences.length > 0 ? (
+              (() => {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const futureOccurrences = event.occurrences.filter((occ: any) => {
+                  const start = new Date(occ.startTime);
+                  return !isNaN(start.getTime()) && start >= today;
+                });
+                return (
+                  <select
+                    className="border border-fuchsia-200 rounded-lg px-2 py-1 text-base shadow focus:outline-none focus:ring-2 focus:ring-fuchsia-400 mt-1"
+                    defaultValue={futureOccurrences[0]?.occurrenceId}
+                    style={{ maxWidth: 260 }}
+                  >
+                    {futureOccurrences.length === 0 ? (
+                      <option value="none" disabled>No future dates</option>
+                    ) : (
+                      futureOccurrences.map((occ: any) => {
+                        const format = (d: string) => {
+                          const date = new Date(d);
+                          return isNaN(date.getTime()) ? d : date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                        };
+                        return (
+                          <option key={occ.occurrenceId} value={occ.occurrenceId} disabled>
+                            {format(occ.startTime)} - {format(occ.endTime)}
+                          </option>
+                        );
+                      })
+                    )}
+                  </select>
+                );
+              })()
+            ) : (
+              <div className="text-base font-medium text-gray-800">{event.recurrenceType}</div>
+            )}
               </div>
             </div>
-            {event.type === 'Location Based' && (
-              <div className="flex items-center gap-3 bg-orange-50/60 border border-orange-100 rounded-xl px-4 py-3 shadow-sm">
-                <span className="text-orange-500 text-xl">📍</span>
-                <div>
-                  <div className="text-xs font-semibold text-gray-500 uppercase">Location</div>
-                  <div className="text-base font-medium text-gray-800">{event.location}</div>
+            {eventType === 'Venue' && (
+              <>
+                <div className="flex items-center gap-3 bg-orange-50/60 border border-orange-100 rounded-xl px-4 py-3 shadow-sm animate-blink-location">
+                  <span className="text-orange-500 text-xl">📍</span>
+                  <div className="flex flex-col">
+                    <div className="text-xs font-semibold text-gray-500 uppercase">Location</div>
+                    <button
+                      type="button"
+                      className="flex items-center gap-2 bg-gradient-to-r from-orange-400 via-fuchsia-500 to-indigo-500 text-white font-bold text-base py-1.5 px-4 rounded-lg shadow transition hover:scale-105 focus:outline-none focus:ring-2 focus:ring-fuchsia-400 border border-orange-300 mt-1"
+                      style={{ letterSpacing: '0.03em', animation: 'blink-location 1.2s linear infinite', width: 'fit-content', maxWidth: '100%' }}
+                      title="View on Map"
+                      onClick={() => {
+                        if (event.location) {
+                          window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`, '_blank');
+                        }
+                      }}
+                    >
+                      <span className="truncate max-w-[50vw] md:max-w-[180px]">{event.location}</span>
+                      <span className="ml-2 text-xs font-semibold bg-white/20 rounded px-2 py-1 border border-white/30">View on Map</span>
+                    </button>
+                  </div>
                 </div>
-              </div>
+      {/* Blinking animation for location button */}
+      <style jsx>{`
+        @keyframes blink-location {
+          0%, 100% { filter: brightness(1); }
+          50% { filter: brightness(1.25); }
+        }
+        .animate-blink-location {
+          animation: blink-location 1.2s linear infinite;
+        }
+      `}</style>
+                {/* Map removed as requested; only clickable location grid remains */}
+              </>
             )}
-            {event.type === 'Online' && (
+            {eventType === 'Online' && (
               <div className="flex items-center gap-3 bg-indigo-50/60 border border-indigo-100 rounded-xl px-4 py-3 shadow-sm">
                 <span className="text-indigo-500 text-xl">🔗</span>
                 <div>
@@ -251,15 +277,25 @@ const EventLivePreview: React.FC<EventLivePreviewProps> = ({ event, forceMobileL
               <div>
                 <div className="text-xs font-semibold text-gray-500 uppercase">Type</div>
                 <div className="text-base font-medium text-gray-800">
-                  {event.type === 'Location Based' && event.location ? (
-                    <span>Location Based: <span className="font-bold">{event.location}</span></span>
-                  ) : event.type === 'Online' && event.eventLink ? (
-                    <span>Online: <a href={event.eventLink} target="_blank" rel="noopener noreferrer" className="text-blue-700 underline font-bold">{event.eventLink}</a></span>
-                  ) : !event.type || event.type === 'To Be Announced' ? (
-                    <span className="italic text-gray-500">To Be Announced</span>
-                  ) : (
-                    <span>{event.type}</span>
-                  )}
+                  {(() => {
+                    const typeRaw = eventType;
+                    const type = typeRaw?.toString().toLowerCase();
+                    // Handle numeric values from backend
+                    if (type === '0') return <span>Online</span>;
+                    if (type === '1') return <span>Venue</span>;
+                    if (type === '2') return <span className="italic text-gray-500">To Be Announced</span>;
+                    if (!type || type === 'tba' || type === 'to be announced' || type.includes('announce')) {
+                      return <span className="italic text-gray-500">To Be Announced</span>;
+                    }
+                    if (type === 'venue') {
+                      return <span>Venue</span>;
+                    }
+                    if (type === 'online') {
+                      return <span>Online</span>;
+                    }
+                    // fallback for any other type
+                    return <span>{eventType}</span>;
+                  })()}
                 </div>
               </div>
             </div>

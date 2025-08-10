@@ -2,7 +2,7 @@
 
 import type { Metadata } from "next";
 import "./globals.css";
-import ClientLayout from "./ClientLayout";
+import ClientLayout from "./client-layout";
 
 export const metadata: Metadata = {
   title: "EventSphere",

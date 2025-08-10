@@ -18,10 +18,11 @@ interface EventsFiltersProps {
   locations?: string[];
   paidOptions?: string[];
   onlineOptions?: string[];
+  onClearFilters?: () => void;
 }
 
 
-export default function EventsFilters({ filters, onChange, categories, eventTypes, locations, paidOptions, onlineOptions }: EventsFiltersProps) {
+export default function EventsFilters({ filters, onChange, categories, eventTypes, locations, paidOptions, onlineOptions, onClearFilters }: EventsFiltersProps) {
   return (
     <div className="flex flex-wrap gap-4 mb-4 items-center justify-center">
       {/* Location Filter (hidden if online is selected) */}
@@ -139,6 +140,17 @@ export default function EventsFilters({ filters, onChange, categories, eventType
         <option value="onetime">onetime</option>
         <option value="multiple">multiple</option>
       </select>
+
+      {/* Clear Filters Button */}
+      {onClearFilters && (
+        <button
+          type="button"
+          className="ml-2 px-4 py-1 rounded bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold border border-gray-300 transition"
+          onClick={onClearFilters}
+        >
+          Clear Filters
+        </button>
+      )}
     </div>
   );
 }

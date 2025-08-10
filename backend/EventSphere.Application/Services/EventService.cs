@@ -354,15 +354,14 @@ namespace backend.Services
                 Title = dto.Title ?? string.Empty,
                 Description = dto.Description ?? string.Empty,
                 Category = dto.Category ?? string.Empty,
-                // EventType: only map if property exists
-                // EventType = dto.EventType, // Uncomment if exists
+                EventType = !string.IsNullOrEmpty(dto.EventType) && Enum.TryParse<EventSphere.Domain.Enums.EventType>(dto.EventType, true, out var parsedType) ? parsedType : EventSphere.Domain.Enums.EventType.TBA,
                 Location = dto.Location ?? string.Empty,
                 RegistrationDeadline = dto.RegistrationDeadline.HasValue ? dto.RegistrationDeadline.Value : throw new ArgumentException("RegistrationDeadline is required"),
                 EventStart = dto.EventStart.HasValue ? dto.EventStart.Value : throw new ArgumentException("EventStart is required"),
                 EventEnd = dto.EventEnd.HasValue ? dto.EventEnd.Value : throw new ArgumentException("EventEnd is required"),
                 Price = dto.Price,
                 OrganizerId = organizerId,
-                OrganizerName = dto.OrganizerEmail ?? string.Empty, // fallback if OrganizerName not present in DTO
+                OrganizerName = dto.OrganizerName ?? string.Empty,
                 OrganizerEmail = dto.OrganizerEmail,
                 RecurrenceType = dto.RecurrenceType,
                 RecurrenceRule = dto.RecurrenceRule,

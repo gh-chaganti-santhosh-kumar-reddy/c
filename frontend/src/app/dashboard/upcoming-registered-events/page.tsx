@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import EventCard from "@/components/cards/eventCard";
+import EventCard from "@/components/cards/event-card";
 
 export default function UpcomingRegisteredEventsPage() {
   const [events, setEvents] = useState<any[]>([]);

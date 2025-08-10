@@ -3,8 +3,8 @@
 
 
 import { useEffect, useState } from "react";
-import EventCard from "../../components/cards/eventCard";
-import EventsFilters from "../../components/sections/EventsFilters";
+import EventCard from "../../components/cards/event-card";
+import EventsFilters from "../../components/sections/events-filter";
 import axios from "axios";
 
 interface Filters {
@@ -60,7 +60,23 @@ export default function UpcomingEventsPage() {
     <div className="mx-5">
       <div className="mt-10 mb-2">
         <h1 className="text-3xl mt-2 mb-3 font-sans font-bold">Upcoming Events:</h1>
-        {/* Filters */}
+        {/* Clear Filters Button (above filters for visibility) */}
+        <div className="flex justify-end mb-2">
+          <button
+            type="button"
+            className="px-4 py-1 rounded bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold border border-gray-300 transition"
+            onClick={() => setFilters({
+              location: "",
+              online: null,
+              paid: null,
+              category: "",
+              recurrence: "",
+              eventType: ""
+            })}
+          >
+            Clear Filters
+          </button>
+        </div>
         <EventsFilters
           filters={filters}
           onChange={update => setFilters(prev => ({ ...prev, ...update }))}

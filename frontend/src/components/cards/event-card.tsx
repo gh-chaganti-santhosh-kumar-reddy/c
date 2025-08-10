@@ -120,7 +120,15 @@ export default function EventCard({ event, showActions = false, onDelete, onEdit
   const images = event?.media && event.media.length > 0
     ? event.media.filter((m: any) => m.mediaType === "Image").map((m: any) => toAbsoluteUrl(m.mediaUrl))
     : [toAbsoluteUrl(event.coverImage)];
-  const location = event.location || "";
+  // Show 'Online' if event is online, otherwise show location or 'Venue'
+  let location = "";
+  if (event.eventType === "Online" || event.eventType === 0) {
+    location = "Online";
+  } else if (event.location && event.location.trim() !== "") {
+    location = event.location;
+  } else {
+    location = "Venue";
+  }
   // Show Paid if price > 0, else Free
   const type = event.price && event.price > 0 ? "Paid" : "Free";
   const registrations = event.registrations?.length || 0;

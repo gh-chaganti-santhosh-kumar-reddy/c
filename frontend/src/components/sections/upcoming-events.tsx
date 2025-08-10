@@ -1,9 +1,10 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
-import EventCard from "../../components/cards/eventCard";
-import SwipeableCard from "../../components/cards/SwipeableCard";
-import EventsFilters from "../../components/sections/EventsFilters";
+import debounce from "lodash/debounce";
+import EventCard from "../cards/event-card";
+import SwipeableCard from "../cards/swipable-card";
+import EventsFilters from "./events-filter";
 import axios from "axios";
 
 export default function UpcommingEvents() {
@@ -17,15 +18,19 @@ export default function UpcommingEvents() {
   const [filters, setFilters] = useState<{
     location: string;
     online: boolean | null;
-    paid: boolean | null;
+    paid: "paid" | "free" | null;
+    price?: "paid" | "free" | null;
     category: string;
     recurrence: string;
+    recurrenceType?: string;
+    eventType?: string;
   }>({
     location: "",
     online: null,
     paid: null,
     category: "",
-    recurrence: ""
+    recurrence: "",
+    eventType: ""
   });
 
   const [categories] = useState<string[]>(["Music", "Tech", "Health", "Education", "Business", "Conference", "Exhibitions","Others"]);
@@ -56,9 +61,9 @@ export default function UpcommingEvents() {
   const handleMouseEnter = () => setIsPaused(true);
   const handleMouseLeave = () => setIsPaused(false);
 
-  // Fetch filtered events from backend when filters change
+  // Fetch filtered events from backend when filters change, with debounce
   useEffect(() => {
-    async function fetchFilteredEvents() {
+    const fetchFilteredEvents = async () => {
       try {
         const res = await axios.post("http://localhost:5274/api/Home/filter", filters);
         if (res.data && res.data.success && Array.isArray(res.data.data)) {
@@ -70,8 +75,10 @@ export default function UpcommingEvents() {
         setEvents([]);
         console.error("Failed to fetch filtered events", err);
       }
-    }
-    fetchFilteredEvents();
+    };
+    const debouncedFetch = debounce(fetchFilteredEvents, 400);
+    debouncedFetch();
+    return () => debouncedFetch.cancel();
   }, [filters]);
 
   const filteredEvents = events;
@@ -89,6 +96,14 @@ export default function UpcommingEvents() {
           // recurrenceTypes={recurrenceTypes} // Removed as recurrence options are now hardcoded in EventsFilters
           onlineOptions={["Online", "Offline"]}
           paidOptions={["Free", "Paid"]}
+          onClearFilters={() => setFilters({
+            location: "",
+            online: null,
+            paid: null,
+            category: "",
+            recurrence: "",
+            eventType: ""
+          })}
         />
 
         <div className="relative pl-3 w-full">

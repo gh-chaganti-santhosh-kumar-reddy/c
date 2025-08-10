@@ -3,11 +3,11 @@
 "use client";
 import { useState, useEffect } from "react";
 import Footer from "@/components/footer/footer";
-import IntroSection from "@/components/sections/IntroSection";
-import TrendingEvents from "@/components/sections/trendingEvents";
-import UpcommingEvents from "@/components/sections/upcommingEvents";
+import IntroSection from "@/components/sections/intro-section";
+import TrendingEvents from "@/components/sections/trending-events";
+import UpcommingEvents from "@/components/sections/upcoming-events";
 import Image from "next/image";
-import Navbar from "@/components/cards/Navbar";
+import Navbar from "@/components/cards/navbar";
 
 
 export default function Home() {

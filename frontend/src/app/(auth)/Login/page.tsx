@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, FormEvent } from 'react';
-import PopupMessage from '@/components/common/PopupMessage';
+import PopupMessage from '@/components/common/popup-message';
 import { useRouter } from 'next/navigation';
 import axios, { AxiosError } from 'axios';
 import Image from "next/image";

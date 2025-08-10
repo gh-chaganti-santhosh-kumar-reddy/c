@@ -9,6 +9,9 @@ namespace EventSphere.Application.Dtos.Events
         public string? Title { get; set; }
         public string? Description { get; set; }
         public string? Category { get; set; }
+        /// <summary>
+        /// Event type: accepts string values ('Online', 'Venue', 'TBA') or numeric values (0=Online, 1=Venue, 2=TBA).
+        /// </summary>
         public string? EventType { get; set; }
         public string? Location { get; set; }
         public DateTime? RegistrationDeadline { get; set; }

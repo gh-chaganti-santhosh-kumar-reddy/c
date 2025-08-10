@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import Navbar from "../../../components/cards/Navbar";
+import Navbar from "../../../components/cards/navbar";
 
 export const metadata: Metadata = {
   title: "EventSphere",

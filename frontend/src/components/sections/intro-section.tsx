@@ -1,4 +1,4 @@
-import NumbersCard from "../cards/NumbersCard";
+import NumbersCard from "../cards/numbers-card";
 import Image from "next/image";
 export default function IntroSection() {
   return (

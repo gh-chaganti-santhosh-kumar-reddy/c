@@ -1,10 +1,10 @@
 "use client";
 import Footer from "@/components/footer/footer";
-import IntroSection from "@/components/sections/IntroSection";
-import UpcommingEvents from "@/components/sections/upcommingEvents";
-import TrendingEvents from "@/components/sections/trendingEvents";
+import IntroSection from "@/components/sections/intro-section";
+import UpcommingEvents from "@/components/sections/upcoming-events";
+import TrendingEvents from "@/components/sections/trending-events";
 import Image from "next/image";
-import Navbar from "@/components/cards/Navbar";
+import Navbar from "@/components/cards/navbar";
 
 
 export default function Home() {

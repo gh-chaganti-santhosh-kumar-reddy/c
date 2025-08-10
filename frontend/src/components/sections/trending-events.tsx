@@ -1,8 +1,8 @@
 "use client";
 import { useRef, useEffect, useState } from "react";
-import EventCard, { UpcomingEvent } from "../cards/eventCard";
+import EventCard, { UpcomingEvent } from "../cards/event-card";
 import axios from "axios";
-import SwipeableCard from "../cards/SwipeableCard";
+import SwipeableCard from "../cards/swipable-card";
 
 export default function TrendingEvents() {
   const scrollRef = useRef<HTMLDivElement>(null);

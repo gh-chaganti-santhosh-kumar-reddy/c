@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { Dancing_Script } from "next/font/google";
-import SearchBar from "./SearchBar";
+import SearchBar from "./search-bar";
 import { useState, useEffect } from "react";
 import { NavbarProps,UserProfile } from "@/interfaces/nav";
 

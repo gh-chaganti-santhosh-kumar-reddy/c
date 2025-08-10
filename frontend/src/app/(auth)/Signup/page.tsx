@@ -3,7 +3,7 @@ import { Roboto } from "next/font/google";
 const roboto = Roboto({ subsets: ["latin"], weight: "700" });
 
 import { useState, useEffect, ChangeEvent, FormEvent } from "react";
-import PopupMessage from '@/components/common/PopupMessage';
+import PopupMessage from '@/components/common/popup-message';
 import axios, { AxiosError } from "axios";
 import Link from "next/link";
 import Image from "next/image";
@@ -33,33 +33,18 @@ export default function Signup() {
   };
 
   const getStrengthColor = (value: number): string => {
-    switch (value) {
-      case 0:
-      setPopupType('success');
-      setMessage("Signup successful! Please check your email to verify your account.");
-      case 2:
-      case 3:
-        return "bg-yellow-400";
-      case 4:
-      case 5:
-        return "bg-green-500";
-        setPopupType('success');
-        return "bg-gray-300";
-        setPopupType('error');
+    if (value <= 1) return "bg-red-400";
+    if (value <= 3) return "bg-yellow-400";
+    return "bg-green-500";
   };
 
   const strength = getPasswordStrength(formData.password);
 
-
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Remove message when popup closes
   const handlePopupClose = () => setMessage("");
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -87,18 +72,17 @@ export default function Signup() {
     } catch (error: unknown) {
       const err = error as AxiosError<{ message?: string }>;
       const errMsg = err.response?.data?.message || "Something went wrong.";
-      if (errMsg.toLowerCase().includes("verification email") && errMsg.toLowerCase().includes("sent")) {
-        setPopupType('success');
-      } else {
-        setPopupType('error');
-      }
+      setPopupType(
+        errMsg.toLowerCase().includes("verification email") && errMsg.toLowerCase().includes("sent")
+          ? 'success'
+          : 'error'
+      );
       setMessage(errMsg);
     } finally {
       setLoading(false);
     }
   };
 
-  // Show popup for 3 seconds when message changes
   useEffect(() => {
     if (message) {
       const timer = setTimeout(() => setMessage(""), 3000);
@@ -108,7 +92,6 @@ export default function Signup() {
 
   return (
     <div className="min-h-screen bg-cover bg-center bg-fixed flex flex-col select-none" style={{ backgroundImage: "url('/images/bg.png')" }}>
-      {/* PopupMessage for feedback */}
       {message && (
         <PopupMessage
           message={message}
@@ -119,7 +102,6 @@ export default function Signup() {
       )}
       <div className="flex justify-center px-2 sm:px-4 py-8 md:min-h-screen md:items-center">
         <div className="bg-white/30 backdrop-blur-md border border-white/20 shadow-xl rounded-2xl flex flex-col md:flex-row w-full max-w-md sm:max-w-lg md:max-w-3xl overflow-hidden">
-          {/* Left Panel */}
           <div className="flex flex-col items-center justify-center w-full md:w-1/2 bg-white/40 p-6 relative overflow-visible md:order-none order-first">
             <Image
               src="/images/register.png"
@@ -137,7 +119,6 @@ export default function Signup() {
             </div>
           </div>
 
-          {/* Signup Form */}
           <div className="w-full md:w-1/2 p-4 sm:p-6 flex flex-col justify-center">
             <h2 className="text-xl sm:text-2xl md:text-3xl mb-4 font-bold text-blue-900 text-center">
               Signup

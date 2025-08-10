@@ -1,5 +1,5 @@
 "use client";
-import Navbar from "../components/cards/Navbar";
+import Navbar from "../components/cards/navbar";
 import Footer from "../components/footer/footer";
 import { usePathname } from "next/navigation";
 

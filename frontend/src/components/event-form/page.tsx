@@ -1,7 +1,6 @@
-
 "use client";
 import { EventFormPopupContext } from './layout';
-import ConfirmationDialog from '../common/ConfirmationDialog';
+import ConfirmationDialog from '../common/confirmation-dialog';
 
 import dynamic from "next/dynamic";
 
@@ -164,7 +163,7 @@ export default function EventForm({ initialData, isEditMode = false, eventId }: 
     if (!isEditMode && !eventData.image && !eventData.coverImageUrl) return false;
     // Paid event: price required
     if (eventData.isPaid && (!eventData.price || Number(eventData.price) < 0)) return false;
-    // Location required for Venue
+    // Location required for Location Based
     if (eventData.type === 'Venue' && !eventData.location.trim()) return false;
     // Event link required for Online
     if (eventData.type === 'Online' && !eventData.eventLink.trim()) return false;
@@ -230,14 +229,9 @@ export default function EventForm({ initialData, isEditMode = false, eventId }: 
       setEventData((prev: any) => {
         // Normalize type
         let type = initialData.type || initialData.eventType || 'Venue';
-        if (typeof type === 'string') {
-          const t = type.toLowerCase();
-          if (t === 'venue' || t === 'location based' || t === 'location') type = 'Venue';
-          else if (t === 'online') type = 'Online';
-          else if (t === 'tba' || t === 'to be announced' || t.includes('announce')) type = 'TBA';
-        } else {
-          type = 'Venue';
-        }
+        if (type.toLowerCase() === 'location based' || type.toLowerCase() === 'location' || type.toLowerCase() === 'venue') type = 'Venue';
+        else if (type.toLowerCase() === 'online') type = 'Online';
+        else if (type.toLowerCase().includes('announce')) type = 'TBA';
 
         // Normalize speakers for imagePreview
         const speakers = (initialData.speakers || []).map((s: any) => ({
@@ -582,13 +576,20 @@ const [showRibbons, setShowRibbons] = useState(false);
     if (eventData.recurrenceType === 'custom') {
       formData.append('CustomFields', customFields);
     }
-
-    formData.append('Location', eventData.location);
-    // Map frontend event type to backend enum value (string to int)
-    const eventTypeMap: Record<string, number> = { Online: 0, Venue: 1, TBA: 2 };
-    const backendEventType = eventTypeMap[eventData.type] ?? 0;
-    formData.append('EventType', backendEventType.toString());
-    console.log('DEBUG EventType sent to backend:', backendEventType, typeof backendEventType);
+    // Only send Location if Venue, only send EventLink if Online
+    if (eventData.type === 'Venue') {
+      formData.append('Location', eventData.location);
+      formData.append('EventLink', null);
+    } else if (eventData.type === 'Online') {
+      formData.append('Location', null);
+      formData.append('EventLink', eventData.eventLink || '');
+    } else {
+      formData.append('Location', null);
+      formData.append('EventLink', null);
+    }
+    // Ensure event type is sent as both 'EventType' and 'Type' for backend compatibility
+    formData.append('EventType', eventData.type);
+    formData.append('Type', eventData.type);
     // If category is Others, the input below will update category directly
     formData.append('Category', eventData.category);
 
@@ -1050,7 +1051,7 @@ const [showRibbons, setShowRibbons] = useState(false);
           <div className="mb-2 text-sm md:text-base">
             <span className="block font-medium mb-2 italic">Event Type<span className="text-red-500 ml-1">*</span></span>
             <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '0.75rem' }}>
-              {['Venue', 'Online', 'TBA'].map((type) => (
+              {['Online', 'Venue', 'TBA'].map((type) => (
                 <label
                   key={type}
                   style={{
@@ -1076,7 +1077,20 @@ const [showRibbons, setShowRibbons] = useState(false);
                     name="type"
                     value={type}
                     checked={eventData.type === type}
-                    onChange={handleInputChange}
+                    onChange={e => {
+                      // Custom logic: clear irrelevant fields when switching type
+                      setEventData(prev => {
+                        let newData = { ...prev, type };
+                        if (type === 'Venue') {
+                          newData = { ...newData, eventLink: '' };
+                        } else if (type === 'Online') {
+                          newData = { ...newData, location: '' };
+                        } else if (type === 'TBA') {
+                          newData = { ...newData, location: '', eventLink: '' };
+                        }
+                        return newData;
+                      });
+                    }}
                     style={{ display: 'none' }}
                   />
                   {type}
@@ -1355,14 +1369,7 @@ const [showRibbons, setShowRibbons] = useState(false);
                   >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#222" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
                   </button>
-                  <div className="flex flex-col gap-1 items-start mb-1 w-full">
-                    <div className="w-9 h-9 md:w-11 md:h-11 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center mb-1">
-                      {speaker.imagePreview ? (
-                        <img src={speaker.imagePreview} alt={`Speaker ${idx + 1}`} className="w-full h-full object-cover" />
-                      ) : (
-                        <span className="text-gray-400 text-xl">👤</span>
-                      )}
-                    </div>
+                  <div className="flex flex-col gap-1">
                     <input
                       type="text"
                       placeholder="Speaker Name"

@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, createContext } from 'react';
-import PopupMessage from "@/components/common/PopupMessage";
+import PopupMessage from "@/components/common/popup-message";
 
 export const EventFormPopupContext = createContext<((popup: { message: string; type?: "success" | "error" | "info" } | null) => void) | undefined>(undefined);
 

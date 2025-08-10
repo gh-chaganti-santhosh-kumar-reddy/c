@@ -7,6 +7,10 @@ namespace EventSphere.Application.Dtos.Events
     public class CreateEventDto
     {
         /// <summary>
+        /// Event type: accepts string values ('Online', 'Venue', 'TBA') or numeric values (0=Online, 1=Venue, 2=TBA).
+        /// </summary>
+        public string? EventType { get; set; }
+        /// <summary>
         /// Used when Category is 'Other' to capture the custom category name.
         /// </summary>
         public string? OtherCategory { get; set; }
@@ -27,6 +31,7 @@ namespace EventSphere.Application.Dtos.Events
         public DateTime? EventEnd { get; set; }
         [Required]
         public int OrganizerId { get; set; }
+        public string? OrganizerName { get; set; }
         public bool IsPaidEvent { get; set; }
         public decimal? Price { get; set; }
         public int? MaxAttendees { get; set; }

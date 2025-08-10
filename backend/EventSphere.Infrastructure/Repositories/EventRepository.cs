@@ -172,16 +172,14 @@ namespace EventSphere.Infrastructure.Repositories
 
             if (!string.IsNullOrEmpty(filter.EventType))
             {
-                if (filter.EventType.Equals("online", StringComparison.OrdinalIgnoreCase))
-                {
-                    // Return all events where Location is "Online"
-                    query = query.Where(e => e.Location != null && e.Location.Equals("Online", StringComparison.OrdinalIgnoreCase));
-                }
-                else
-                {
-                    // Return all events where Location is not "Online"
-                    query = query.Where(e => e.Location == null || !e.Location.Equals("Online", StringComparison.OrdinalIgnoreCase));
-                }
+            if (filter.EventType.Equals("online", StringComparison.OrdinalIgnoreCase))
+            {
+                query = query.Where(e => e.EventType == EventSphere.Domain.Enums.EventType.Online);
+            }
+            else if (filter.EventType.Equals("offline", StringComparison.OrdinalIgnoreCase))
+            {
+                query = query.Where(e => e.EventType != EventSphere.Domain.Enums.EventType.Online);
+            }
             }
             return await query
                 .Include(e => e.Speakers)
